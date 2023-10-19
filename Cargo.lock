@@ -4,4 +4,4 @@ version = 3
 
 [[package]]
 name = "teo-result"
-version = "0.0.58-alpha.0"
+version = "0.0.58-alpha.1"
