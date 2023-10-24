@@ -16,3 +16,16 @@ impl<T> ResultExt<T> for std::result::Result<T, Error> {
         }
     }
 }
+
+pub trait IntoTeoResult<T> {
+    fn into_teo_result(self) -> Result<T>;
+}
+
+impl<T> IntoTeoResult<T> for std::io::Result<T> {
+    fn into_teo_result(self) -> Result<T> {
+        match self {
+            Ok(t) => Ok(t),
+            Err(e) => Err(Error::new(e.to_string())),
+        }
+    }
+}
