@@ -30,3 +30,10 @@ impl Debug for Error {
 }
 
 impl std::error::Error for Error { }
+
+impl From<std::io::Error> for Error {
+
+    fn from(value: std::io::Error) -> Self {
+        Self::new(value.to_string())
+    }
+}
