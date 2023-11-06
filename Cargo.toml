@@ -1,7 +1,7 @@
 [package]
 name = "teo-result"
 description = "Result library for Teo."
-version = "0.0.58-alpha.3"
+version = "0.0.58"
 edition = "2021"
 license = "Apache-2.0"
 
