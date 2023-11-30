@@ -1,3 +1,4 @@
+use std::convert::Infallible;
 use std::fmt::{Debug, Display, Formatter};
 
 pub struct Error {
@@ -35,5 +36,11 @@ impl From<std::io::Error> for Error {
 
     fn from(value: std::io::Error) -> Self {
         Self::new(value.to_string())
+    }
+}
+
+impl From<Infallible> for Error {
+    fn from(_value: Infallible) -> Self {
+        Self::new("infallible")
     }
 }
