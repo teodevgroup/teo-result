@@ -14,6 +14,10 @@ impl Error {
     pub fn prefix(&self, prefix: impl AsRef<str>) -> Self {
         Self::new(format!("{}: {}", prefix.as_ref(), self.message))
     }
+
+    pub fn message(&self) -> &str {
+        self.message.as_str()
+    }
 }
 
 impl Display for Error {
