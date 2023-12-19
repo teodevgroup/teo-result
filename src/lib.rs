@@ -2,4 +2,4 @@ mod error;
 mod result;
 
 pub use error::Error;
-pub use result::{Result, ResultExt};
+pub use result::{Result, ResultExt, IntoTeoResult};
