@@ -1,14 +1,17 @@
+use std::any::Any;
+use std::collections::BTreeMap;
 use std::convert::Infallible;
 use std::fmt::{Debug, Display, Formatter};
 
 pub struct Error {
     pub message: String,
+    pub meta_map: BTreeMap<String, Box<dyn Any + Send + Sync>>,
 }
 
 impl Error {
 
     pub fn new(message: impl Into<String>) -> Self {
-        Self { message: message.into() }
+        Self { message: message.into(), meta_map: BTreeMap::new() }
     }
 
     pub fn prefix(&self, prefix: impl AsRef<str>) -> Self {
@@ -17,6 +20,14 @@ impl Error {
 
     pub fn message(&self) -> &str {
         self.message.as_str()
+    }
+
+    pub fn insert_meta<T: 'static + Send + Sync>(&mut self, key: impl Into<String>, val: T) {
+        self.meta_map.insert(key.into(), Box::new(val));
+    }
+
+    pub fn get_meta<T: 'static + Send>(&self, key: &str) -> Option<&T> {
+        self.meta_map.get(key).and_then(|boxed| boxed.downcast_ref())
     }
 }
 
