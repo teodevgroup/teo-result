@@ -2,10 +2,11 @@ use std::any::Any;
 use std::collections::BTreeMap;
 use std::convert::Infallible;
 use std::fmt::{Debug, Display, Formatter};
+use std::sync::Arc;
 
 pub struct Error {
     pub message: String,
-    pub meta_map: BTreeMap<String, Box<dyn Any + Send + Sync>>,
+    pub meta_map: BTreeMap<String, Arc<dyn Any + Send + Sync>>,
 }
 
 impl Error {
@@ -23,7 +24,7 @@ impl Error {
     }
 
     pub fn insert_meta<T: 'static + Send + Sync>(&mut self, key: impl Into<String>, val: T) {
-        self.meta_map.insert(key.into(), Box::new(val));
+        self.meta_map.insert(key.into(), Arc::new(val));
     }
 
     pub fn get_meta<T: 'static + Send>(&self, key: &str) -> Option<&T> {
