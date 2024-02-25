@@ -86,6 +86,10 @@ impl Error {
         }
     }
 
+    pub fn title(&self) -> &str {
+        self.title.as_ref().map_or("InternalServerError", AsRef::as_ref)
+    }
+
     pub fn message(&self) -> String {
         if let Some(prefixes) = &self.prefixes {
             let mut result = "".to_owned();
