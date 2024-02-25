@@ -1,48 +1,118 @@
 use std::any::Any;
-use std::collections::BTreeMap;
 use std::convert::Infallible;
 use std::fmt::{Debug, Display, Formatter};
 use std::sync::Arc;
+use indexmap::IndexMap;
 
+#[derive(Debug)]
 pub struct Error {
     pub message: String,
-    pub meta_map: BTreeMap<String, Arc<dyn Any + Send + Sync>>,
+    pub prefixes: Option<Vec<String>>,
+    pub title: Option<String>,
+    pub code: Option<u16>,
+    pub fields: Option<IndexMap<String, String>>,
+    pub platform_native_object: Option<Arc<dyn Any + Send + Sync>>,
 }
 
 impl Error {
 
     pub fn new(message: impl Into<String>) -> Self {
-        Self { message: message.into(), meta_map: BTreeMap::new() }
+        Self {
+            message: message.into(),
+            prefixes: None,
+            title: None,
+            code: None,
+            fields: None,
+            platform_native_object: None,
+        }
     }
 
-    pub fn prefix(&self, prefix: impl AsRef<str>) -> Self {
-        Self::new(format!("{}: {}", prefix.as_ref(), self.message))
+    pub fn new_with_code(message: impl Into<String>, code: u16) -> Self {
+        Self {
+            message: message.into(),
+            prefixes: None,
+            title: None,
+            code: Some(code),
+            fields: None,
+            platform_native_object: None,
+        }
     }
 
-    pub fn message(&self) -> &str {
-        self.message.as_str()
+    pub fn new_with_code_title(message: impl Into<String>, code: u16, title: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+            prefixes: None,
+            title: Some(title.into()),
+            code: Some(code),
+            fields: None,
+            platform_native_object: None,
+        }
     }
 
-    pub fn insert_meta<T: 'static + Send + Sync>(&mut self, key: impl Into<String>, val: T) {
-        self.meta_map.insert(key.into(), Arc::new(val));
+    pub fn new_with_code_title_fields(message: impl Into<String>, code: u16, title: impl Into<String>, fields: IndexMap<String, String>) -> Self {
+        Self {
+            message: message.into(),
+            prefixes: None,
+            title: Some(title.into()),
+            code: Some(code),
+            fields: Some(fields),
+            platform_native_object: None,
+        }
     }
 
-    pub fn get_meta<T: 'static + Send>(&self, key: &str) -> Option<&T> {
-        self.meta_map.get(key).and_then(|boxed| boxed.downcast_ref())
+    pub fn new_with_title_fields(message: impl Into<String>, title: impl Into<String>, fields: IndexMap<String, String>) -> Self {
+        Self {
+            message: message.into(),
+            prefixes: None,
+            title: Some(title.into()),
+            code: None,
+            fields: Some(fields),
+            platform_native_object: None,
+        }
+    }
+
+    pub fn prefixed(&self, prefix: impl Into<String>) -> Self {
+        Self {
+            message: self.message.clone(),
+            prefixes: {
+                let mut original = self.prefixes.clone().unwrap_or(vec![]);
+                original.insert(0, prefix.into());
+                Some(original)
+            },
+            title: self.title.clone(),
+            code: self.code.clone(),
+            fields: self.fields.clone(),
+            platform_native_object: self.platform_native_object.clone(),
+        }
+    }
+
+    pub fn message(&self) -> String {
+        if let Some(prefixes) = &self.prefixes {
+            let mut result = "".to_owned();
+            for prefix in prefixes {
+                result += prefix.as_str();
+                result += ": ";
+            }
+            result += self.message.as_str();
+            result
+        } else {
+            self.message.clone()
+        }
+    }
+
+    pub fn assign_platform_native_object<T: 'static + Send + Sync>(&mut self, val: T) {
+        self.platform_native_object = Some(Arc::new(val));
+    }
+
+    pub fn platform_native_object<T: 'static + Send>(&self) -> Option<&T> {
+        self.platform_native_object.as_ref().map(|boxed| boxed.downcast_ref()).flatten()
     }
 }
 
 impl Display for Error {
 
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&self.message)
-    }
-}
-
-impl Debug for Error {
-
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&self.message)
+        f.write_str(self.message().as_str())
     }
 }
 

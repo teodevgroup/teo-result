@@ -4,15 +4,15 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 pub trait ResultExt<T> {
 
-    fn err_prefix(self, prefix: impl AsRef<str>) -> Result<T>;
+    fn err_prefix(self, prefix: impl Into<String>) -> Result<T>;
 }
 
 impl<T> ResultExt<T> for std::result::Result<T, Error> {
 
-    fn err_prefix(self, prefix: impl AsRef<str>) -> Self {
+    fn err_prefix(self, prefix: impl Into<String>) -> Self {
         match self {
             Ok(t) => Ok(t),
-            Err(e) => Err(e.prefix(prefix)),
+            Err(e) => Err(e.prefixed(prefix)),
         }
     }
 }
