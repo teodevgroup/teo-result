@@ -10,7 +10,7 @@ pub struct Error {
     pub prefixes: Option<Vec<String>>,
     pub title: Option<String>,
     pub code: Option<u16>,
-    pub fields: Option<IndexMap<String, String>>,
+    pub errors: Option<IndexMap<String, String>>,
     pub platform_native_object: Option<Arc<dyn Any + Send + Sync>>,
 }
 
@@ -22,7 +22,7 @@ impl Error {
             prefixes: None,
             title: None,
             code: None,
-            fields: None,
+            errors: None,
             platform_native_object: None,
         }
     }
@@ -33,7 +33,7 @@ impl Error {
             prefixes: None,
             title: None,
             code: Some(code),
-            fields: None,
+            errors: None,
             platform_native_object: None,
         }
     }
@@ -44,29 +44,29 @@ impl Error {
             prefixes: None,
             title: Some(title.into()),
             code: Some(code),
-            fields: None,
+            errors: None,
             platform_native_object: None,
         }
     }
 
-    pub fn new_with_code_title_fields(message: impl Into<String>, code: u16, title: impl Into<String>, fields: IndexMap<String, String>) -> Self {
+    pub fn new_with_code_title_errors(message: impl Into<String>, code: u16, title: impl Into<String>, errors: IndexMap<String, String>) -> Self {
         Self {
             message: message.into(),
             prefixes: None,
             title: Some(title.into()),
             code: Some(code),
-            fields: Some(fields),
+            errors: Some(errors),
             platform_native_object: None,
         }
     }
 
-    pub fn new_with_title_fields(message: impl Into<String>, title: impl Into<String>, fields: IndexMap<String, String>) -> Self {
+    pub fn new_with_title_errors(message: impl Into<String>, title: impl Into<String>, errors: IndexMap<String, String>) -> Self {
         Self {
             message: message.into(),
             prefixes: None,
             title: Some(title.into()),
             code: None,
-            fields: Some(fields),
+            errors: Some(errors),
             platform_native_object: None,
         }
     }
@@ -81,7 +81,7 @@ impl Error {
             },
             title: self.title.clone(),
             code: self.code.clone(),
-            fields: self.fields.clone(),
+            errors: self.errors.clone(),
             platform_native_object: self.platform_native_object.clone(),
         }
     }
