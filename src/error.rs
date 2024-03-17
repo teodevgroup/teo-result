@@ -179,7 +179,6 @@ impl Error {
             _ => Cow::Owned(format!("ServerError({})", self.code)),
         }
     }
-
 }
 
 impl Display for Error {
