@@ -1,9 +1,8 @@
 use std::any::Any;
 use std::borrow::Cow;
-use std::convert::Infallible;
 use std::fmt::{Debug, Display, Formatter};
 use std::sync::Arc;
-use indexmap::IndexMap;
+use indexmap::{IndexMap, indexmap};
 
 #[derive(Debug)]
 pub struct Error {
@@ -17,8 +16,8 @@ impl Error {
 
     pub fn new(message: impl Into<String>) -> Self {
         Self {
-            message: message.into(),
             code: 500,
+            message: message.into(),
             errors: None,
             platform_native_object: None,
         }
@@ -26,79 +25,84 @@ impl Error {
 
     pub fn new_with_code(message: impl Into<String>, code: u16) -> Self {
         Self {
+            code,
             message: message.into(),
-            prefixes: None,
-            title: None,
-            code: Some(code),
             errors: None,
             platform_native_object: None,
         }
     }
 
-    pub fn new_with_code_title(message: impl Into<String>, code: u16, title: impl Into<String>) -> Self {
+    pub fn new_with_code_errors(message: impl Into<String>, code: u16, errors: IndexMap<String, String>) -> Self {
         Self {
+            code,
             message: message.into(),
-            prefixes: None,
-            title: Some(title.into()),
-            code: Some(code),
-            errors: None,
-            platform_native_object: None,
-        }
-    }
-
-    pub fn new_with_code_title_errors(message: impl Into<String>, code: u16, title: impl Into<String>, errors: IndexMap<String, String>) -> Self {
-        Self {
-            message: message.into(),
-            prefixes: None,
-            title: Some(title.into()),
-            code: Some(code),
             errors: Some(errors),
             platform_native_object: None,
         }
     }
 
-    pub fn new_with_title_errors(message: impl Into<String>, title: impl Into<String>, errors: IndexMap<String, String>) -> Self {
+    pub fn new_pathed(message: impl Into<String>, code: u16, key: impl Into<String>, value: impl Into<String>) -> Self {
         Self {
+            code,
             message: message.into(),
-            prefixes: None,
-            title: Some(title.into()),
-            code: None,
-            errors: Some(errors),
+            errors: Some(indexmap! { key.into() => value.into() }),
             platform_native_object: None,
         }
     }
 
-    pub fn prefixed(&self, prefix: impl Into<String>) -> Self {
+    pub fn message_prefixed(&self, prefix: impl AsRef<str>) -> Self {
         Self {
-            message: self.message.clone(),
-            prefixes: {
-                let mut original = self.prefixes.clone().unwrap_or(vec![]);
-                original.insert(0, prefix.into());
-                Some(original)
+            code: self.code,
+            message: if self.errors.is_some() {
+                self.message.clone()
+            } else {
+                format!("{}: {}", prefix.as_ref(), self.message())
             },
-            title: self.title.clone(),
-            code: self.code.clone(),
-            errors: self.errors.clone(),
+            errors: if let Some(errors) = self.errors.as_ref() {
+                Some(errors.iter().map(|(k, v)| (k.clone(), format!("{}: {}", prefix.as_ref(), v))).collect())
+            } else {
+                None
+            },
             platform_native_object: self.platform_native_object.clone(),
         }
     }
 
-    pub fn title(&self) -> &str {
-        self.title.as_ref().map_or("InternalServerError", AsRef::as_ref)
+    pub fn path_prefixed(&self, prefix: impl AsRef<str>) -> Self {
+        Self {
+            code: self.code,
+            message: self.message.clone(),
+            errors: if let Some(errors) = self.errors.as_ref() {
+                Some(errors.iter().map(|(k, v)| (format!("{}.{}", prefix.as_ref(), k), v.clone())).collect())
+            } else {
+                None
+            },
+            platform_native_object: self.platform_native_object.clone(),
+        }
     }
 
-    pub fn message(&self) -> String {
-        if let Some(prefixes) = &self.prefixes {
-            let mut result = "".to_owned();
-            for prefix in prefixes {
-                result += prefix.as_str();
-                result += ": ";
-            }
-            result += self.message.as_str();
-            result
-        } else {
-            self.message.clone()
+    pub fn map_path<F>(&self, mapper: F) -> Self where F: Fn(&str) -> String {
+        Self {
+            code: self.code,
+            message: self.message.clone(),
+            errors: if let Some(errors) = self.errors.as_ref() {
+                Some(errors.iter().map(|(k, v)| (mapper(k.as_str()), v.clone())).collect())
+            } else {
+                None
+            },
+            platform_native_object: self.platform_native_object.clone(),
         }
+    }
+
+    pub fn code(&self) -> u16 {
+        self.code
+    }
+
+    pub fn message(&self) -> &str {
+        self.message.as_str()
+    }
+
+    pub fn errors(&self) -> Option<&IndexMap<String, String>> {
+        self.errors.as_ref()
     }
 
     pub fn assign_platform_native_object<T: 'static + Send + Sync>(&mut self, val: T) {
@@ -181,21 +185,8 @@ impl Error {
 impl Display for Error {
 
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.write_str(self.message().as_str())
+        f.write_str(self.message())
     }
 }
 
 impl std::error::Error for Error { }
-
-impl From<std::io::Error> for Error {
-
-    fn from(value: std::io::Error) -> Self {
-        Self::new(value.to_string())
-    }
-}
-
-impl From<Infallible> for Error {
-    fn from(_value: Infallible) -> Self {
-        Self::new("infallible")
-    }
-}

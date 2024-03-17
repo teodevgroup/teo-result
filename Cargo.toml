@@ -5,7 +5,8 @@ version = "0.2.18"
 edition = "2021"
 license = "Apache-2.0"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 indexmap = { version = "2.2.5" }
+serde_json = { version = "1.0.114", features = ["indexmap"] }
+napi = { version = "2.16.0", default-features = false, features = ["napi5", "async", "chrono_date", "compat-mode"], optional = true }
+pyo3 = { version = "0.20.3", features = ["extension-module", "chrono", "indexmap"], optional = true }
