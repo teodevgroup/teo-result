@@ -4,15 +4,24 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 pub trait ResultExt<T> {
 
-    fn err_prefix(self, prefix: impl Into<String>) -> Result<T>;
+    fn error_message_prefix(self, prefix: impl Into<String>) -> Result<T>;
+
+    fn error_path_prefix(self, prefix: impl Into<String>) -> Result<T>;
 }
 
 impl<T> ResultExt<T> for std::result::Result<T, Error> {
 
-    fn err_prefix(self, prefix: impl Into<String>) -> Self {
+    fn error_message_prefix(self, prefix: impl Into<String>) -> Self {
         match self {
             Ok(t) => Ok(t),
-            Err(e) => Err(e.prefixed(prefix)),
+            Err(e) => Err(e.message_prefixed(prefix)),
+        }
+    }
+
+    fn error_path_prefix(self, prefix: impl Into<String>) -> Self {
+        match self {
+            Ok(t) => Ok(t),
+            Err(e) => Err(e.message_prefixed(prefix)),
         }
     }
 }

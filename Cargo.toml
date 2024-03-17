@@ -1,11 +1,11 @@
 [package]
 name = "teo-result"
 description = "Result library for Teo."
-version = "0.2.8"
+version = "0.2.18"
 edition = "2021"
 license = "Apache-2.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-indexmap = { version = "2.2.3" }
+indexmap = { version = "2.2.5" }
