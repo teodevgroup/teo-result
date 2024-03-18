@@ -179,6 +179,42 @@ impl Error {
             _ => Cow::Owned(format!("ServerError({})", self.code)),
         }
     }
+
+    pub fn not_found() -> Self {
+        Self {
+            code: 404,
+            message: "not found".to_owned(),
+            errors: None,
+            platform_native_object: None,
+        }
+    }
+
+    pub fn invalid_request() -> Self {
+        Self {
+            code: 400,
+            message: "value is invalid".to_owned(),
+            errors: None,
+            platform_native_object: None,
+        }
+    }
+
+    pub fn internal_server_error() -> Self {
+        Self {
+            code: 500,
+            message: "internal server error".to_owned(),
+            errors: None,
+            platform_native_object: None,
+        }
+    }
+
+    pub fn unauthorized() -> Self {
+        Self {
+            code: 401,
+            message: "unauthorized".to_owned(),
+            errors: None,
+            platform_native_object: None,
+        }
+    }
 }
 
 impl Display for Error {

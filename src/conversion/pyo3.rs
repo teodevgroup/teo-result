@@ -42,3 +42,29 @@ impl From<PyErr> for Error {
     }
 }
 
+impl From<Error> for PyErr {
+    fn from(value: Error) -> Self {
+        let result: Result<PyErr, PyErr> = Python::with_gil(|py| {
+            let meta: Option<&PyErr> = value.platform_native_object();
+            if let Some(err) = meta {
+                Err(PyErr::from_value(err.into_py(py).as_ref(py)))
+            } else {
+                let err = TeoException::new_err("");
+                let py_object: PyObject = err.clone_ref(py).into_py(py);
+                py_object.setattr(py, "message", value.message())?;
+                py_object.setattr(py, "code", value.code)?;
+                if let Some(errors) = value.errors {
+                    let dict = PyDict::new(py);
+                    for (k, v) in errors {
+                        dict.set_item(k, v)?;
+                    }
+                    py_object.setattr(py, "errors", dict)?;
+                } else {
+                    py_object.setattr(py, "errors", ())?;
+                }
+                Err(err)
+            }
+        });
+        result.unwrap_or_else(|e| e)
+    }
+}
