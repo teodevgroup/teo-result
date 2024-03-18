@@ -239,7 +239,7 @@ impl Display for Error {
             },
         };
         let serialized = serde_json::to_string(&error_serializable).unwrap();
-        f.write_str(&format!("TeoError: {}", serialized))
+        f.write_str(&format!("teo_result::Error: {}", serialized))
     }
 }
 
