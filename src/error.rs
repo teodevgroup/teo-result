@@ -3,7 +3,7 @@ use std::borrow::Cow;
 use std::fmt::{Debug, Display, Formatter};
 use std::sync::Arc;
 use indexmap::{IndexMap, indexmap};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 #[derive(Debug)]
@@ -14,11 +14,30 @@ pub struct Error {
     pub platform_native_object: Option<Arc<dyn Any + Send + Sync>>,
 }
 
-#[derive(Serialize)]
-pub struct ErrorSerializable<'a> {
+#[derive(Serialize, Deserialize)]
+pub struct ErrorSerializable {
     pub code: u16,
-    pub message: &'a str,
+    pub message: String,
     pub errors: Value,
+}
+
+impl ErrorSerializable {
+    pub fn from_error(error: &Error) -> Self {
+        ErrorSerializable {
+            code: error.code,
+            message: error.message().to_string(),
+            errors: if let Some(errors) = error.errors() {
+                Value::Object(errors.iter().map(|(k, v)| (k.to_string(), Value::String(v.to_string()))).collect())
+            } else {
+                Value::Null
+            },
+        }
+    }
+
+    pub fn error_string(error: &Error) -> String {
+        let serializable = Self::from_error(error);
+        serde_json::to_string(&serializable).unwrap()
+    }
 }
 
 impl Error {
@@ -320,16 +339,7 @@ impl Error {
 impl Display for Error {
 
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let error_serializable = ErrorSerializable {
-            code: self.code,
-            message: self.message(),
-            errors: if let Some(errors) = self.errors() {
-                Value::Object(errors.iter().map(|(k, v)| (k.to_string(), Value::String(v.to_string()))).collect())
-            } else {
-                Value::Null
-            },
-        };
-        let serialized = serde_json::to_string(&error_serializable).unwrap();
+        let serialized = ErrorSerializable::error_string(self);
         f.write_str(&format!("teo_result::Error: {}", serialized))
     }
 }
