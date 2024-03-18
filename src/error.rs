@@ -257,6 +257,17 @@ impl Error {
             platform_native_object: None,
         }
     }
+
+    pub fn unauthorized_pathed(path: impl Into<String>, message: impl Into<String>) -> Self {
+        Self {
+            code: 401,
+            message: "unauthorized".to_owned(),
+            errors: Some(indexmap! {
+                path.into() => message.into()
+            }),
+            platform_native_object: None,
+        }
+    }
 }
 
 impl Display for Error {
