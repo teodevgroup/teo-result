@@ -198,6 +198,15 @@ impl Error {
         }
     }
 
+    pub fn not_found_message(message: impl Into<String>) -> Self {
+        Self {
+            code: 404,
+            message: message.into(),
+            errors: None,
+            platform_native_object: None,
+        }
+    }
+
     pub fn not_found_pathed(path: impl Into<String>, message: impl Into<String>) -> Self {
         Self {
             code: 404,
@@ -213,6 +222,15 @@ impl Error {
         Self {
             code: 400,
             message: "value is invalid".to_owned(),
+            errors: None,
+            platform_native_object: None,
+        }
+    }
+
+    pub fn invalid_request_message(message: impl Into<String>) -> Self {
+        Self {
+            code: 400,
+            message: message.into(),
             errors: None,
             platform_native_object: None,
         }
@@ -249,10 +267,39 @@ impl Error {
         }
     }
 
+    pub fn internal_server_error_message(message: impl Into<String>) -> Self {
+        Self {
+            code: 500,
+            message: message.into(),
+            errors: None,
+            platform_native_object: None,
+        }
+    }
+
+    pub fn internal_server_error_pathed(path: impl Into<String>, message: impl Into<String>) -> Self {
+        Self {
+            code: 500,
+            message: "internal server error".to_owned(),
+            errors: Some(indexmap! {
+                path.into() => message.into()
+            }),
+            platform_native_object: None,
+        }
+    }
+
     pub fn unauthorized() -> Self {
         Self {
             code: 401,
             message: "unauthorized".to_owned(),
+            errors: None,
+            platform_native_object: None,
+        }
+    }
+
+    pub fn unauthorized_message(message: impl Into<String>) -> Self {
+        Self {
+            code: 401,
+            message: message.into(),
             errors: None,
             platform_native_object: None,
         }
