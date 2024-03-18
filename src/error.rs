@@ -198,11 +198,44 @@ impl Error {
         }
     }
 
+    pub fn not_found_pathed(path: impl Into<String>, message: impl Into<String>) -> Self {
+        Self {
+            code: 404,
+            message: "not found".to_owned(),
+            errors: Some(indexmap! {
+                path.into() => message.into()
+            }),
+            platform_native_object: None,
+        }
+    }
+
     pub fn invalid_request() -> Self {
         Self {
             code: 400,
             message: "value is invalid".to_owned(),
             errors: None,
+            platform_native_object: None,
+        }
+    }
+
+    pub fn invalid_request_pathed(path: impl Into<String>, message: impl Into<String>) -> Self {
+        Self {
+            code: 400,
+            message: "value is invalid".to_owned(),
+            errors: Some(indexmap! {
+                path.into() => message.into()
+            }),
+            platform_native_object: None,
+        }
+    }
+
+    pub fn unique_error(path: impl Into<String>, constraint: impl AsRef<str>) -> Self {
+        Self {
+            code: 400,
+            message: "value is invalid".to_owned(),
+            errors: Some(indexmap! {
+                path.into() => format!("value violates '{}' constraint", constraint.as_ref())
+            }),
             platform_native_object: None,
         }
     }
