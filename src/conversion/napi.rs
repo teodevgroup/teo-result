@@ -17,23 +17,20 @@ fn build_from_error_serializable(value: Error, error_serializable: ErrorSerializ
 
 impl From<Error> for crate::Error {
     fn from(value: Error) -> Self {
-        if value.status.as_ref() == "TeoError" {
-            let error_serializable: ErrorSerializable = serde_json::from_str(value.reason.as_str()).unwrap();
-            build_from_error_serializable(value, error_serializable)
-        } else if value.status.as_ref() == "GenericFailure" {
-            let error_serializable: Result<ErrorSerializable, serde_json::Error> = serde_json::from_str(value.reason.as_str());
+        if value.status.as_ref() == "GenericFailure" && value.reason.starts_with("TeoError: ") {
+            let error_serializable: Result<ErrorSerializable, serde_json::Error> = serde_json::from_str(value.reason.strip_prefix("TeoError: ").unwrap());
             match error_serializable {
                 Ok(error_serializable) => {
                     build_from_error_serializable(value, error_serializable)
                 }
                 Err(_) => {
-                    let mut result = crate::Error::new(value.to_string());
+                    let mut result = crate::Error::new(value.reason.as_str());
                     result.assign_platform_native_object(value);
                     result
                 }
             }
         } else {
-            let mut error = crate::Error::new(value.to_string());
+            let mut error = crate::Error::new(value.reason.as_str());
             error.assign_platform_native_object(value);
             error
         }
