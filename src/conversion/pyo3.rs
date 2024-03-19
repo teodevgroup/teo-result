@@ -11,7 +11,7 @@ impl From<PyErr> for Error {
             if value.get_type(py).is(PyType::new::<TeoException>(py)) {
                 let py_object: PyObject = value.clone_ref(py).into_py(py);
                 let code: u16 = py_object.getattr(py, "code")?.extract(py)?;
-                let message: String = py_object.getattr(py, "message")?.extract(py)?;
+                let message: String = py_object.getattr(py, "error_message")?.extract(py)?;
                 let errors_py = py_object.getattr(py, "errors")?;
                 let errors = if errors_py.is_none(py) {
                     None
