@@ -51,7 +51,7 @@ impl From<Error> for PyErr {
             } else {
                 let err = TeoException::new_err("");
                 let py_object: PyObject = err.clone_ref(py).into_py(py);
-                py_object.setattr(py, "message", value.message())?;
+                py_object.setattr(py, "error_message", value.message())?;
                 py_object.setattr(py, "code", value.code)?;
                 if let Some(errors) = value.errors {
                     let dict = PyDict::new(py);
