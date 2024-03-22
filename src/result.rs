@@ -8,7 +8,7 @@ pub trait ResultExt<T> {
 
     fn error_path_prefixed(self, prefix: impl AsRef<str>) -> Result<T>;
 
-    fn alter_error_code(self, code: usize) -> Result<T>;
+    fn alter_error_code(self, code: u16) -> Result<T>;
 }
 
 impl<T> ResultExt<T> for std::result::Result<T, Error> {
