@@ -7,6 +7,8 @@ pub trait ResultExt<T> {
     fn error_message_prefixed(self, prefix: impl AsRef<str>) -> Result<T>;
 
     fn error_path_prefixed(self, prefix: impl AsRef<str>) -> Result<T>;
+
+    fn alter_error_code(self, code: usize) -> Result<T>;
 }
 
 impl<T> ResultExt<T> for std::result::Result<T, Error> {
@@ -24,17 +26,14 @@ impl<T> ResultExt<T> for std::result::Result<T, Error> {
             Err(e) => Err(e.path_prefixed(prefix)),
         }
     }
+
+    fn alter_error_code(self, code: u16) -> Self {
+        match self {
+            Ok(t) => Ok(t),
+            Err(mut e) => Err({
+                e.code = code;
+                e
+            }),
+        }
+    }
 }
-//
-// pub trait IntoTeoResult<T> {
-//     fn into_teo_result(self) -> Result<T>;
-// }
-//
-// impl<T> IntoTeoResult<T> for std::io::Result<T> {
-//     fn into_teo_result(self) -> Result<T> {
-//         match self {
-//             Ok(t) => Ok(t),
-//             Err(e) => Err(Error::new(e.to_string())),
-//         }
-//     }
-// }
