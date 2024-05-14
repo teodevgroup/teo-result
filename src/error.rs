@@ -108,6 +108,19 @@ impl Error {
         }
     }
 
+    pub fn pathed(&self, prefix: impl AsRef<str>) -> Self {
+        Self {
+            code: self.code,
+            message: self.message.clone(),
+            errors: if let Some(errors) = self.errors.as_ref() {
+                Some(errors.iter().map(|(k, v)| (format!("{}.{}", prefix.as_ref(), k), v.clone())).collect())
+            } else {
+                Some(indexmap! {prefix.as_ref().to_string() => self.message.clone()})
+            },
+            platform_native_object: self.platform_native_object.clone(),
+        }
+    }
+
     pub fn map_path<F>(&self, mapper: F) -> Self where F: Fn(&str) -> String {
         Self {
             code: self.code,
