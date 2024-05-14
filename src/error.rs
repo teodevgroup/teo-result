@@ -113,7 +113,7 @@ impl Error {
             code: self.code,
             message: self.message.clone(),
             errors: if let Some(errors) = self.errors.as_ref() {
-                Some(errors.iter().map(|(k, v)| (format!("{}.{}", prefix.as_ref(), k), v.clone())).collect())
+                Some(errors.iter().map(|(k, v)| (k.to_owned(), v.clone())).collect())
             } else {
                 Some(indexmap! {prefix.as_ref().to_string() => self.message.clone()})
             },
