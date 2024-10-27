@@ -1,6 +1,6 @@
 use indexmap::IndexMap;
-use pyo3::{PyErr, import_exception, Python, IntoPy, PyObject};
-use pyo3::types::{PyDict, PyType, PyAnyMethods};
+use pyo3::{PyErr, import_exception, Python, IntoPy, PyObject, Bound};
+use pyo3::types::{PyDict, PyType, PyAnyMethods, PyDictMethods};
 use crate::Error;
 
 import_exception!(teo, TeoException);
@@ -16,7 +16,7 @@ impl From<PyErr> for Error {
                 let errors = if errors_py.is_none(py) {
                     None
                 } else {
-                    let dict: &PyDict = errors_py.extract(py)?;
+                    let dict: Bound<PyDict> = errors_py.extract(py)?;
                     let mut map_result: IndexMap<String, String> = IndexMap::new();
                     for (k, v) in dict.iter() {
                         let k_string: String = k.extract()?;
