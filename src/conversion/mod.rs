@@ -6,3 +6,5 @@ mod napi;
 mod pyo3;
 #[cfg(feature = "reqwest")]
 mod reqwest;
+#[cfg(feature = "multer")]
+mod multer;
