@@ -1,6 +1,6 @@
 use indexmap::IndexMap;
 use pyo3::{PyErr, import_exception, Python, IntoPy, PyObject};
-use pyo3::types::{PyDict, PyType};
+use pyo3::types::{PyDict, PyType, PyAnyMethods};
 use crate::Error;
 
 import_exception!(teo, TeoException);
@@ -8,7 +8,7 @@ import_exception!(teo, TeoException);
 impl From<PyErr> for Error {
     fn from(value: PyErr) -> Self {
         let result: Result<Error, Error> = Python::with_gil(|py| {
-            if value.get_type(py).is(PyType::new::<TeoException>(py)) {
+            if value.get_type_bound(py).is(&PyType::new_bound::<TeoException>(py)) {
                 let py_object: PyObject = value.clone_ref(py).into_py(py);
                 let code: u16 = py_object.getattr(py, "code")?.extract(py)?;
                 let message: String = py_object.getattr(py, "error_message")?.extract(py)?;
@@ -47,14 +47,14 @@ impl From<Error> for PyErr {
         let result: Result<PyErr, PyErr> = Python::with_gil(|py| {
             let meta: Option<&PyErr> = value.platform_native_object();
             if let Some(err) = meta {
-                Err(PyErr::from_value(err.into_py(py).as_ref(py)))
+                Err(PyErr::from_value_bound(err.into_py(py).into_bound(py)))
             } else {
                 let err = TeoException::new_err("");
                 let py_object: PyObject = err.clone_ref(py).into_py(py);
                 py_object.setattr(py, "error_message", value.message())?;
                 py_object.setattr(py, "code", value.code)?;
                 if let Some(errors) = value.errors {
-                    let dict = PyDict::new(py);
+                    let dict = PyDict::new_bound(py);
                     for (k, v) in errors {
                         dict.set_item(k, v)?;
                     }

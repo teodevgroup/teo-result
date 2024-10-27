@@ -1,14 +1,14 @@
 [package]
 name = "teo-result"
 description = "Result library for Teo."
-version = "0.3.0-alpha.0"
+version = "0.3.0-alpha.1"
 edition = "2021"
 license = "Apache-2.0"
 
 [dependencies]
-indexmap = { version = "2.2.6" }
-serde = { version = "1.0.203", features = ["derive"] }
-serde_json = { version = "1.0.117", features = ["indexmap"] }
-napi = { version = "2.16.0", default-features = false, features = ["napi5", "async", "chrono_date", "compat-mode"], optional = true }
-pyo3 = { version = "0.21.2", features = ["extension-module", "chrono", "indexmap"], optional = true }
-reqwest = { version = "0.12.5", optional = true }
+indexmap = { version = "2.6.0" }
+serde = { version = "1.0.213", features = ["derive"] }
+serde_json = { version = "1.0.132", features = ["indexmap"] }
+napi = { version = "2.16.13", default-features = false, features = ["napi5", "async", "chrono_date", "compat-mode"], optional = true }
+pyo3 = { version = "0.22.5", features = ["extension-module", "chrono", "indexmap"], optional = true }
+reqwest = { version = "0.12.8", optional = true }

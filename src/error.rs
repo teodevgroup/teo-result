@@ -6,7 +6,6 @@ use indexmap::{IndexMap, indexmap};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-#[derive(Debug)]
 pub struct Error {
     pub code: u16,
     pub message: String,
@@ -349,11 +348,16 @@ impl Error {
     }
 }
 
-impl Display for Error {
-
+impl Debug for Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let serialized = ErrorSerializable::error_string(self);
         f.write_str(&format!("teo_result::Error: {}", serialized))
+    }
+}
+
+impl Display for Error {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        Debug::fmt(self, f)
     }
 }
 
