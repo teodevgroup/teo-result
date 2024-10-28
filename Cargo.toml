@@ -4,6 +4,9 @@ description = "Result library for Teo."
 version = "0.3.0-alpha.1"
 edition = "2021"
 license = "Apache-2.0"
+homepage = "https://teodev.io"
+documentation = "https://docs.teodev.io"
+repository = "https://github.com/teodevgroup/teo-result"
 
 [dependencies]
 indexmap = { version = "2.6.0" }
