@@ -18,7 +18,7 @@ fn build_from_error_serializable(value: Error, error_serializable: ErrorSerializ
 impl From<Error> for crate::Error {
     fn from(value: Error) -> Self {
         if value.status.as_ref() == "GenericFailure" && (value.reason.starts_with("TeoError: ") || value.reason.starts_with("Error: TeoError: ")) {
-            let json_string = if let Some(string) = value.reason.strip_prefix("Error: ") {
+            let json_string = if let Some(string) = value.reason.strip_prefix("Error: TeoError: ") {
                 string
             } else {
                 value.reason.strip_prefix("TeoError: ").unwrap()
