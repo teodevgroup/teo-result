@@ -17,8 +17,13 @@ fn build_from_error_serializable(value: Error, error_serializable: ErrorSerializ
 
 impl From<Error> for crate::Error {
     fn from(value: Error) -> Self {
-        if value.status.as_ref() == "GenericFailure" && value.reason.starts_with("TeoError: ") {
-            let error_serializable: Result<ErrorSerializable, serde_json::Error> = serde_json::from_str(value.reason.strip_prefix("TeoError: ").unwrap());
+        if value.status.as_ref() == "GenericFailure" && (value.reason.starts_with("TeoError: ") || value.reason.starts_with("Error: TeoError: ")) {
+            let json_string = if let Some(string) = value.reason.strip_prefix("Error: ") {
+                string
+            } else {
+                value.reason.strip_prefix("TeoError: ").unwrap()
+            };
+            let error_serializable: Result<ErrorSerializable, serde_json::Error> = serde_json::from_str(json_string);
             match error_serializable {
                 Ok(error_serializable) => {
                     build_from_error_serializable(value, error_serializable)
@@ -43,7 +48,7 @@ impl From<crate::Error> for Error {
             // contains one native error, use it
             napi_error.clone()
         } else {
-            let message = ErrorSerializable::error_string(&value);
+            let message = format!("TeoError: {}", ErrorSerializable::error_string(&value));
             Error::new(napi::Status::GenericFailure, message)
         }
     }
