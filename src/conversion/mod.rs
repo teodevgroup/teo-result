@@ -12,3 +12,5 @@ mod reqwest;
 mod multer;
 #[cfg(feature = "cookie")]
 mod cookie;
+#[cfg(feature = "http")]
+mod http;
