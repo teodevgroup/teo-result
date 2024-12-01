@@ -1,4 +1,5 @@
 use http::header::{InvalidHeaderName, InvalidHeaderValue, ToStrError};
+use http::uri::InvalidUri;
 use crate::Error;
 
 impl From<ToStrError> for Error {
@@ -16,5 +17,11 @@ impl From<InvalidHeaderName> for Error {
 impl From<InvalidHeaderValue> for Error {
     fn from(_: InvalidHeaderValue) -> Self {
         Error::new("Invalid header value")
+    }
+}
+
+impl From<InvalidUri> for Error {
+    fn from(_: InvalidUri) -> Self {
+        Error::new("Invalid URI")
     }
 }
