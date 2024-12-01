@@ -10,3 +10,5 @@ mod pyo3;
 mod reqwest;
 #[cfg(feature = "multer")]
 mod multer;
+#[cfg(feature = "cookie")]
+mod cookie;
