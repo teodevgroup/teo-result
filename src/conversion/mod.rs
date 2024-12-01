@@ -1,5 +1,6 @@
 mod std_io;
 mod cstr;
+mod mutex;
 mod infallible;
 #[cfg(feature = "napi")]
 mod napi;
