@@ -14,3 +14,5 @@ mod multer;
 mod cookie;
 #[cfg(feature = "http")]
 mod http;
+#[cfg(feature = "bson")]
+mod bson;
